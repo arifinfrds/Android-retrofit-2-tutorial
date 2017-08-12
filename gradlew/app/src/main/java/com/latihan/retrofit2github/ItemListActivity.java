@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.latihan.retrofit2github.Service.GitHubService;
 import com.latihan.retrofit2github.dummy.DummyContent;
 import com.latihan.retrofit2github.model.GithubRepository;
+import com.latihan.retrofit2github.util.ItemOffsetDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,10 @@ public class ItemListActivity extends AppCompatActivity implements View.OnClickL
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         Toast.makeText(this, "mGithubRepositories.size : " + mGithubRepositories.size(), Toast.LENGTH_SHORT).show();
-        recyclerView.setAdapter(new GithubRepositoryAdapter(mGithubRepositories));
+        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.item_offset);
+        recyclerView.addItemDecoration(itemDecoration);
+        recyclerView.setAdapter(new GithubRepositoryAdapter(mGithubRepositories, this));
+
     }
 
 
