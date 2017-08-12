@@ -8,8 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.latihan.retrofit2github.dummy.DummyContent;
+import com.latihan.retrofit2github.model.GithubRepository;
+import com.latihan.retrofit2github.util.GSONConverter;
+
+import org.w3c.dom.Text;
+
+import java.util.Objects;
 
 /**
  * A fragment representing a single Item detail screen.
@@ -23,11 +30,15 @@ public class ItemDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
+    public static final String ARG_GITHUB_REPOSITORY_ID = "github_repository_id";
+    public static final String ARG_OWNER_ID = "owner_id";
 
     /**
      * The dummy content this fragment is presenting.
      */
     private DummyContent.DummyItem mItem;
+    private GithubRepository mGithubRepository;
+    private TextView mItemDetail;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -40,17 +51,44 @@ public class ItemDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
+        if (getArguments().containsKey(ARG_GITHUB_REPOSITORY_ID)) {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
             mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+//            mGithubRepository = GSONConverter.fromStringToObject(
+//                    getArguments().getString(ARG_GITHUB_REPOSITORY_ID),
+//                    GithubRepository.class
+//            );
 
-            Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.content);
+//            mGithubRepository = Class.forName("sd");
+            try {
+                Class githubRepositoryClass = Class.forName(getArguments().getString(ARG_GITHUB_REPOSITORY_ID));
+
+                try {
+                    Object githubRepositoryObject = githubRepositoryClass.newInstance();
+
+                    if (githubRepositoryObject instanceof GithubRepository) {
+                        mGithubRepository = (GithubRepository) githubRepositoryObject;
+                        Activity activity = this.getActivity();
+                        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+                        if (appBarLayout != null) {
+                            appBarLayout.setTitle(mGithubRepository.getName());
+                            mItemDetail.setText(mGithubRepository.getName());
+                        }
+                    }
+
+                } catch (java.lang.InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
+
+
         }
     }
 
@@ -63,6 +101,8 @@ public class ItemDetailFragment extends Fragment {
         if (mItem != null) {
             ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.details);
         }
+
+        mItemDetail = (TextView) rootView.findViewById(R.id.item_detail);
 
         return rootView;
     }
